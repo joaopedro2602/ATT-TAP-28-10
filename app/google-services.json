@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "78562268378",
+    "project_id": "autenticador-eddcf",
+    "storage_bucket": "autenticador-eddcf.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:78562268378:android:97860df9166bfdb556c1e3",
+        "android_client_info": {
+          "package_name": "com.example.autenticador"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "78562268378-tn9leujv3b36lpjep8paablgemgdvqb3.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.autenticador",
+            "certificate_hash": "fde2a15c5029de6ad6081264f179ed0d22811d7a"
+          }
+        },
+        {
+          "client_id": "78562268378-3josphnmmlltivqmdb7vv757q32anm6k.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBtdvCZrgnhjxijFn_wybj5IsbiDuy8kD4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "78562268378-3josphnmmlltivqmdb7vv757q32anm6k.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
