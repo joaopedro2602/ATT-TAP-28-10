@@ -1,56 +1,124 @@
 package com.example.autenticador
-
-import android.content.ContentValues.TAG
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
+import androidx.compose.foundation.layout.*
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import com.example.autenticador.ui.theme.AutenticadorTheme
-import com.google.firebase.Firebase
-import com.google.firebase.auth.auth
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
+import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val auth = Firebase.auth
-
-        Log.i(TAG, "onCreate usuario atual: ${auth.currentUser}")
-
-        auth.createUserWithEmailAndPassword(
-            "joao.cabral@gmail.com",
-            "123456"
-        ).addOnCompleteListener { task ->
-            if(task.isSuccessful){
-                Log.i(TAG, "onCreate: Sucesso")
-            }else{
-                Log.i(TAG, "onCreate: Falha -> ${task.exception}")
+        setContent {
+            AutenticadorTheme {
+                AuthenticationScreen()
             }
         }
-
-        auth.signInWithEmailAndPassword("joao.cabral@gmail.com","123456")
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
+fun AuthenticationScreen() {
+    var email by remember { mutableStateOf("") }
+    var password by remember { mutableStateOf("") }
+    val auth = Firebase.auth
+    val snackbarHostState = remember { SnackbarHostState() }
+    val coroutineScope = rememberCoroutineScope()
+
+    Scaffold(
+        modifier = Modifier.fillMaxSize(),
+        snackbarHost = { SnackbarHost(snackbarHostState) },
+        content = { padding ->
+            Column(
+                modifier = Modifier
+                    .padding(padding)
+                    .fillMaxSize()
+                    .padding(16.dp),
+                verticalArrangement = Arrangement.Center
+            ) {
+                OutlinedTextField(
+                    value = email,
+                    onValueChange = { email = it },
+                    label = { Text("Email") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                OutlinedTextField(
+                    value = password,
+                    onValueChange = { password = it },
+                    label = { Text("Senha") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                Spacer(modifier = Modifier.height(24.dp))
+
+                Button(
+                    onClick = {
+                        signInUser(auth, email, password) { message ->
+                            coroutineScope.launch {
+                                snackbarHostState.showSnackbar(message)
+                            }
+                        }
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text("Entrar")
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Button(
+                    onClick = {
+                        signUpUser(auth, email, password) { message ->
+                            coroutineScope.launch {
+                                snackbarHostState.showSnackbar(message)
+                            }
+                        }
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text("Cadastre-se")
+                }
+            }
+        }
     )
 }
 
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    AutenticadorTheme {
-        Greeting("Android")
-    }
+private fun signInUser(auth: FirebaseAuth, email: String, password: String, onResult: (String) -> Unit) {
+    auth.signInWithEmailAndPassword(email, password)
+        .addOnCompleteListener { task ->
+            val message = if (task.isSuccessful) {
+                Log.i("Authentication", "Login realizado com sucesso!")
+                "Login realizado com sucesso!"
+            } else {
+                Log.e("Authentication", "Falha no login: ${task.exception}")
+                "Falha no login: ${task.exception?.message}"
+            }
+            onResult(message)
+        }
+}
+
+private fun signUpUser(auth: FirebaseAuth, email: String, password: String, onResult: (String) -> Unit) {
+    auth.createUserWithEmailAndPassword(email, password)
+        .addOnCompleteListener { task ->
+            val message = if (task.isSuccessful) {
+                Log.i("Authentication", "Usuário cadastrado com sucesso!")
+                "Cadastro realizado com sucesso!"
+            } else {
+                Log.e("Authentication", "Falha no cadastro: ${task.exception}")
+                "Falha no cadastro: ${task.exception?.message}"
+            }
+            onResult(message)
+        }
 }
